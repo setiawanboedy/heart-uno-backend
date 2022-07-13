@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+from scipy.interpolate import interp1d
 
 measures = {}
 
@@ -82,7 +83,7 @@ def calc_fs_measures():
     RR_X = peaklist[1:]
     RR_Y = RR_list
     RR_x_new = np.linspace(RR_X[0], RR_X[-1], RR_X[-1])
-    f = np.intersect1d(RR_X, RR_Y, kind='cubic')
+    f = interp1d(RR_X, RR_Y, kind='cubic')
     measures['RR_X'] = RR_X
     measures['RR_Y'] = RR_Y
     measures['RR_x_new'] = RR_x_new
