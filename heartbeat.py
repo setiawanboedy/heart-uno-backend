@@ -10,14 +10,14 @@ def get_data(filename):
     dataset = pd.read_csv(filename)
     return dataset
 
-def rolmean(dataset, hrw, fs):
+async def rolmean(dataset, hrw, fs):
     mov_avg = dataset['hart'].rolling(int(hrw*fs)).mean()
     avg_hr = (np.mean(dataset.hart))
     mov_avg = [avg_hr if math.isnan(x) else x for x in mov_avg]
     mov_avg = [x*1.2 for x in mov_avg]
     dataset['hart_rollingmean'] = mov_avg
 
-def detect_peaks(dataset):
+async def detect_peaks(dataset):
     window = []
     peaklist = []
     listpos = 0
@@ -37,7 +37,7 @@ def detect_peaks(dataset):
     measures['peaklist'] = peaklist
     measures['ybeat'] = [dataset.hart[x] for x in peaklist]
 
-def calc_RR(dataset, fs):
+async def calc_RR(dataset, fs):
     peaklist = measures['peaklist']
     RR_list = []
     cnt = 0
@@ -60,7 +60,7 @@ def calc_RR(dataset, fs):
     measures['RR_diff'] = RR_diff
     measures['RR_sqdiff'] = RR_sqdiff
 
-def calc_ts_measures():
+async def calc_ts_measures():
     RR_list = measures['RR_list']
     RR_diff = measures['RR_diff']
     RR_sqdiff = measures['RR_sqdiff']
@@ -74,10 +74,11 @@ def calc_ts_measures():
     NN50 = [x for x in RR_diff if (x>50)]
     measures['nn20'] = NN20
     measures['nn50'] = NN50
+    print(RR_list)
     measures['pnn20'] = float(len(NN20)) / float(len(RR_diff))
     measures['pnn50'] = float(len(NN50)) / float(len(RR_diff))
     
-def calc_fs_measures():
+async def calc_fs_measures():
     peaklist = measures['peaklist']
     RR_list = measures['RR_list']
     RR_X = peaklist[1:]

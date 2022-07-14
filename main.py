@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 from werkzeug.utils import secure_filename
 import uvicorn
+from fastapi.responses import FileResponse
 from io import BytesIO
 from starlette.responses import StreamingResponse
 
@@ -17,29 +18,28 @@ app.mount('/data', StaticFiles(directory="data"), name="data")
 
         
 @app.post("/analysis")
-async def add_analysis(file:UploadFile=File(...)):
-    sample_rate = 360
+async def add_analysis(csv: UploadFile=File(...)):
     hrw = 0.75 #sampling
     fs = 100 # frequncy record
-    text = secure_filename(file.filename)
-    contents = file.file.read()
+    text = secure_filename(csv.filename)
+    contents = csv.file.read()
     with open(f"./data/"+text, 'wb') as f:
         f.write(contents)
         
     ecg = hb.get_data("./data/data.csv")
     
     # setup
-    hb.rolmean(ecg, hrw, fs)
+    await hb.rolmean(ecg, hrw, fs)
     
-    hb.detect_peaks(ecg)
+    await hb.detect_peaks(ecg)
     
-    hb.calc_RR(ecg, fs)
+    await hb.calc_RR(ecg, fs)
     
     # time domain
-    hb.calc_ts_measures()
+    await hb.calc_ts_measures()
 
     # frequency domain
-    hb.calc_fs_measures()
+    await hb.calc_fs_measures()
     
     n = len(ecg.hart)
     freq = np.fft.fftfreq(len(ecg.hart), d = ((1/fs)))
@@ -112,35 +112,17 @@ async def add_analysis(file:UploadFile=File(...)):
 @app.get("/original")
 async def original_signal():
     file_path = "./images/original_image.png"
-    original_image = Image.open(file_path)
-    original_image = original_image.filter(ImageFilter.SHARPEN)
-
-    filtered_image = BytesIO()
-    original_image.save(filtered_image, "PNG")
-    filtered_image.seek(0)
-    return StreamingResponse(filtered_image, media_type="image/png")
+    return FileResponse(file_path)
 
 @app.get("/interpolate")
 async def interpolate():
     file_path = "./images/interpolate.png"
-    original_image = Image.open(file_path)
-    original_image = original_image.filter(ImageFilter.SHARPEN)
-
-    filtered_image = BytesIO()
-    original_image.save(filtered_image, "PNG")
-    filtered_image.seek(0)
-    return StreamingResponse(filtered_image, media_type="image/png")
+    return FileResponse(file_path)
 
 @app.get("/spectrum")
 async def spectrum():
     file_path = "./images/spectrum.png"
-    original_image = Image.open(file_path)
-    original_image = original_image.filter(ImageFilter.SHARPEN)
-
-    filtered_image = BytesIO()
-    original_image.save(filtered_image, "PNG")
-    filtered_image.seek(0)
-    return StreamingResponse(filtered_image, media_type="image/png")
+    return FileResponse(file_path)
         
 
 if __name__ == "__main__":
