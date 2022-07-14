@@ -1,3 +1,4 @@
+import base64
 from PIL import Image, ImageFilter
 import heartbeat as hb
 import matplotlib.pyplot as plt
@@ -112,17 +113,25 @@ async def add_analysis(csv: UploadFile=File(...)):
 @app.get("/original")
 async def original_signal():
     file_path = "./images/original_image.png"
-    return FileResponse(file_path)
+    with open(file_path, "rb") as image_file:
+        encode_image = base64.b64encode(image_file.read())
+    return encode_image
+    
 
 @app.get("/interpolate")
 async def interpolate():
     file_path = "./images/interpolate.png"
-    return FileResponse(file_path)
+    with open(file_path, "rb") as image_file:
+        encode_image = base64.b64encode(image_file.read())
+    return encode_image
+    
 
 @app.get("/spectrum")
 async def spectrum():
     file_path = "./images/spectrum.png"
-    return FileResponse(file_path)
+    with open(file_path, "rb") as image_file:
+        encode_image = base64.b64encode(image_file.read())
+    return encode_image
         
 
 if __name__ == "__main__":
