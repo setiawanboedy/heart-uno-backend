@@ -1,15 +1,15 @@
 import base64
-from PIL import Image, ImageFilter
+# from PIL import Image, ImageFilter
 import heartbeat as hb
 import matplotlib.pyplot as plt
 import numpy as np
 from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
 import uvicorn
-from fastapi.responses import FileResponse
-from io import BytesIO
-from starlette.responses import StreamingResponse
+# from fastapi.responses import FileResponse
+# from io import BytesIO
+# from starlette.responses import StreamingResponse
 
 
 app = FastAPI()
@@ -22,12 +22,12 @@ app.mount('/data', StaticFiles(directory="data"), name="data")
 async def add_analysis(csv: UploadFile=File(...)):
     hrw = 0.75 #sampling
     fs = 100 # frequncy record
-    text = secure_filename(csv.filename)
+    # text = secure_filename(csv.filename)
     contents = csv.file.read()
-    with open(f"./data/"+text, 'wb') as f:
+    with open(f"./data/heart.csv", 'wb') as f:
         f.write(contents)
         
-    ecg = hb.get_data("./data/data.csv")
+    ecg = hb.get_data("./data/heart.csv")
     
     # setup
     await hb.rolmean(ecg, hrw, fs)
