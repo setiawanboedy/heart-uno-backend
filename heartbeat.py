@@ -70,13 +70,13 @@ async def calc_ts_measures():
     measures['sdnn'] = np.std(RR_list)
     measures['sdsd'] = np.std(RR_diff)
     measures['rmssd'] = np.sqrt(np.mean(RR_sqdiff))
-    NN20 = [x for x in RR_diff if (x>20)]
-    NN50 = [x for x in RR_diff if (x>50)]
-    measures['nn20'] = NN20
-    measures['nn50'] = NN50
-    print(RR_list)
-    measures['pnn20'] = float(len(NN20)) / float(len(RR_diff))
-    measures['pnn50'] = float(len(NN50)) / float(len(RR_diff))
+    # NN20 = [x for x in RR_diff if (x>20)]
+    # NN50 = [x for x in RR_diff if (x>50)]
+    # measures['nn20'] = NN20
+    # measures['nn50'] = NN50
+    # print(RR_list)
+    # measures['pnn20'] = float(len(NN20)) / float(len(RR_diff))
+    # measures['pnn50'] = float(len(NN50)) / float(len(RR_diff))
     
 async def calc_fs_measures():
     peaklist = measures['peaklist']
