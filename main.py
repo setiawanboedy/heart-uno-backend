@@ -21,7 +21,7 @@ app.mount('/data', StaticFiles(directory="data"), name="data")
 @app.post("/analysis")
 async def add_analysis(csv: UploadFile=File(...)):
     hrw = 0.75 #sampling
-    fs = 100 # frequncy record
+    fs = 192 # frequncy record
     # text = secure_filename(csv.filename)
     contents = csv.file.read()
     with open(f"./data/heart.csv", 'wb') as f:
