@@ -7,6 +7,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.staticfiles import StaticFiles
 # from werkzeug.utils import secure_filename
 import uvicorn
+import heartpy as hp
 # from fastapi.responses import FileResponse
 # from io import BytesIO
 # from starlette.responses import StreamingResponse
@@ -20,14 +21,19 @@ app.mount('/data', StaticFiles(directory="data"), name="data")
         
 @app.post("/analysis")
 async def add_analysis(csv: UploadFile=File(...)):
-    hrw = 0.75 #sampling
-    fs = 192 # frequncy record
+
     # text = secure_filename(csv.filename)
     contents = csv.file.read()
     with open(f"./data/heart.csv", 'wb') as f:
         f.write(contents)
         
-    ecg = hb.get_data("./data/heart.csv")
+    location = "./data/heart.csv"
+    ecg = hb.get_data(location)
+    ecg_time = hp.get_data(location, column_name='time')
+    fs = round(hp.get_samplerate_datetime(ecg_time, timeformat='%Y-%m-%d %H:%M:%S.%f'))
+    
+    hrw = 1 #sampling
+    # fs = 192 # frequncy record
     
     # setup
     await hb.rolmean(ecg, hrw, fs)
@@ -42,6 +48,8 @@ async def add_analysis(csv: UploadFile=File(...)):
     # frequency domain
     await hb.calc_fs_measures()
     
+    print(fs)
+    
     n = len(ecg.hart)
     freq = np.fft.fftfreq(len(ecg.hart), d = ((1/fs)))
     freq = freq[range(n//2)]
@@ -52,10 +60,8 @@ async def add_analysis(csv: UploadFile=File(...)):
     Y = Y[range(n//2)]
     
     lf = np.trapz(abs(Y[(freq>=0.04) & (freq<=0.15)]))
-    print("LF: ", lf)
     
     hf = np.trapz(abs(Y[(freq>=0.16) & (freq<=0.5)]))
-    print("HF: ", hf)
     
     # original signal image
     plt.figure(1)
