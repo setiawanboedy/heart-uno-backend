@@ -30,7 +30,7 @@ async def detect_peaks(dataset):
             listpos += 1
         else:
             maximum = max(window, default=0)
-            beatposition = listpos - len(window) + (window.index(max(window)))
+            beatposition = listpos - len(window) + (window.index(max(window, default=0)))
             peaklist.append(beatposition)
             window = []
             listpos += 1
